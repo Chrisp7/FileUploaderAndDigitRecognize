@@ -15,26 +15,29 @@ public class Upload extends javax.servlet.http.HttpServlet {
         //get part object
         Part file = request.getPart("file");
         String fileName = getSubmittedFileName(file);
-		//save file
+        //save file
         //read from stream
         InputStream inputStream = file.getInputStream();
         byte[] bytes = new byte[(int) file.getSize()];
         inputStream.read(bytes);
         inputStream.close();
-        File newFile = new File(getServletContext().getRealPath("/UploadField/file.png"));
+        String filePath = getServletContext().getRealPath("/UploadField/file.png");
+        File newFile = new File(filePath);
         FileOutputStream fileOutputStream = new FileOutputStream(newFile);
         //write into file
         fileOutputStream.write(bytes);
         fileOutputStream.flush();
         fileOutputStream.close();
-        System.out.println(file.getSize()+"  "+getServletContext().getRealPath("/UploadField/file.png"));
+        System.out.println(file.getSize() + "  " + filePath);
 
         //response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        JSONObject o1= new JSONObject();
-        o1.put("mes","ok");
-        PrintWriter out=response.getWriter();
+        DigitClassifier dc = new DigitClassifier();
+        String result = dc.GetRecResult(filePath);
+        JSONObject o1 = new JSONObject();
+        o1.put("mes", result);
+        PrintWriter out = response.getWriter();
         out.print(o1);
         out.flush();
 
@@ -43,6 +46,7 @@ public class Upload extends javax.servlet.http.HttpServlet {
     protected void doGet(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, IOException {
 
     }
+
     private static String getSubmittedFileName(Part part) {
         for (String cd : part.getHeader("content-disposition").split(";")) {
             if (cd.trim().startsWith("filename")) {

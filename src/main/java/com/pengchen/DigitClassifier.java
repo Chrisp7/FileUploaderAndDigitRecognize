@@ -9,11 +9,13 @@ import java.io.*;
  * Created by CP on 13/11/2017.
  */
 public class DigitClassifier {
+
     public static void main(String[] args) {
-        System.out.println("the digits are: " + GetRecResult("/Users/CP/Documents/Study/code/intellij/MobileComputingORC/src/main/java/com/pengchen/photo_2.jpg"));
+        System.out.println("the digits are: " + GetRecResultByTF("2.png"));
     }
 
-    public static String GetRecResult(String PhotoPath) {
+
+    public String GetRecResult(String PhotoPath) {
         String s = null;
         String ModelPath = " /Users/CP/Documents/Study/code/intellij/MobileComputingORC/src/main/java/com/pengchen/";
 
@@ -28,6 +30,10 @@ public class DigitClassifier {
             BufferedReader stdError = new BufferedReader(new
                     InputStreamReader(p.getErrorStream()));
 
+            System.out.println("Here is the standard error of the command (if any):\n");
+            while ((s = stdInput.readLine()) != null) {
+                System.out.println(s);
+            }
             // read any errors from the attempted command
             /*
             System.out.println("Here is the standard error of the command (if any):\n");
@@ -42,13 +48,58 @@ public class DigitClassifier {
             e.printStackTrace();
             System.exit(-1);
         } finally {
-
-            return ReadFile("/Users/CP/Documents/Study/code/intellij/MobileComputingORC/result.txt");
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return ReadFile("/Users/CP/Software/apache-tomcat-8.5.23/bin/result.txt");
         }
 
     }
 
-    public static String ReadFile(String FilePath) {
+    public static String GetRecResultByTF(String PhotoPath) {
+        String s = null;
+        String result = null;
+        try {
+
+            // using the Runtime exec method:
+            String preCommand ="source /Users/CP/tensorflow/bin/activate";
+            Runtime.getRuntime().exec(preCommand);
+            String command = "python predict_2.py " + PhotoPath;
+            //String command = "pip list";
+            System.out.println(command);
+
+            Process p = Runtime.getRuntime().exec(command);
+            BufferedReader stdInput = new BufferedReader(new
+                    InputStreamReader(p.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new
+                    InputStreamReader(p.getErrorStream()));
+
+            System.out.println("Here is the standard input of the command (if any):\n");
+
+            while ((s = stdInput.readLine()) != null) {
+                System.out.println(s);
+                result = s;
+
+            }
+            while ((s = stdError.readLine()) != null) {
+                System.out.println(s);
+                result = s;
+
+            }
+
+
+        } catch (IOException e) {
+            System.out.println("exception happened - here's what I know: ");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        return result;
+    }
+
+    public String ReadFile(String FilePath) {
         StringBuilder text = new StringBuilder();
         try {
 
@@ -70,5 +121,7 @@ public class DigitClassifier {
 
 
     }
+
+
 
 }
